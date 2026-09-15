@@ -1,0 +1,53 @@
+{% extends "base.html" %}
+{% block title %}Overview{% endblock %}
+{% block content %}
+<div class="page-head">
+  <div>
+    <div class="eyebrow">Registry overview</div>
+    <h1>{{ total }} document{{ total|pluralize }} on file</h1>
+  </div>
+  {% if user.is_archive_admin %}
+    <div class="btn-row">
+      <a class="btn" href="{% url 'documents:document_create' %}"><svg class="icon"><use href="#icon-file-plus"/></svg>File a document</a>
+      <a class="btn btn--quiet" href="{% url 'documents:export_csv' %}"><svg class="icon"><use href="#icon-download"/></svg>Export index (CSV)</a>
+    </div>
+  {% endif %}
+</div>
+
+<div class="grid grid-4">
+  {% for card in type_cards %}
+  <a class="card type-card" href="{% url 'documents:document_list' %}?doc_type={{ card.code }}">
+    <svg class="icon icon-lg"><use href="#{{ card.icon }}"/></svg>
+    <div class="eyebrow">{{ card.label }}</div>
+    <div class="count">{{ card.total }}</div>
+    <div class="sub">{{ card.this_year }} in series {{ this_year }}</div>
+    <div class="sub ctrl" style="margin-top:.4rem">last no. {{ card.last_number }}</div>
+  </a>
+  {% endfor %}
+</div>
+
+<h2 style="margin-top:2rem">Recently filed</h2>
+<table class="registry">
+  <thead><tr><th>Control number</th><th>Subject</th><th>Issued</th><th>Status</th></tr></thead>
+  <tbody>
+  {% for doc in latest_filed %}
+    <tr>
+      <td class="ctrl">{{ doc.control_number }}</td>
+      <td class="subject"><a href="{{ doc.get_absolute_url }}">{{ doc.subject }}</a></td>
+      <td class="ctrl">{{ doc.date_issued|date:"d M Y" }}</td>
+      <td>
+        {% if doc.status == 'ACTIVE' %}<span class="chip chip--ok">{{ doc.get_status_display }}</span>
+        {% elif doc.status == 'REVOKED' %}<span class="chip chip--stop">{{ doc.get_status_display }}</span>
+        {% else %}<span class="chip chip--warn">{{ doc.get_status_display }}</span>{% endif %}
+      </td>
+    </tr>
+  {% empty %}
+    <tr><td colspan="4" class="empty">
+      <h3>The registry is empty</h3>
+      <p>{% if user.is_archive_admin %}File the first document to start the series.{% else %}Nothing has been filed yet.{% endif %}</p>
+      {% if user.is_archive_admin %}<a class="btn" href="{% url 'documents:document_create' %}"><svg class="icon"><use href="#icon-file-plus"/></svg>File a document</a>{% endif %}
+    </td></tr>
+  {% endfor %}
+  </tbody>
+</table>
+{% endblock %}

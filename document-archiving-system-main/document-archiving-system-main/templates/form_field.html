@@ -1,0 +1,16 @@
+<div class="field">
+  {{ field.label_tag }}
+  {% if field.field.widget.input_type == "password" %}
+    <div class="password-field">
+      {{ field }}
+      <button type="button" class="password-toggle" aria-label="Show password">
+        <svg class="icon icon-eye"><use href="#icon-eye"/></svg>
+        <svg class="icon icon-eye-off"><use href="#icon-eye-off"/></svg>
+      </button>
+    </div>
+  {% else %}
+    {{ field }}
+  {% endif %}
+  {% if field.help_text %}<div class="helptext">{{ field.help_text }}</div>{% endif %}
+  {{ field.errors }}
+</div>

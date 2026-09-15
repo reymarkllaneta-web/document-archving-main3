@@ -1,0 +1,19 @@
+{% extends "base.html" %}
+{% block title %}Remove {{ document.control_number }}{% endblock %}
+{% block content %}
+<div class="page-head"><div><div class="eyebrow">Administrator</div><h1>Remove this record?</h1></div></div>
+<div class="card" style="max-width:620px">
+  <div class="stamp">{{ document.control_number }}</div>
+  <p style="margin-top:.9rem">{{ document.subject }}</p>
+  <p class="helptext">
+    The record moves to the bin and disappears from search. Its control number stays reserved so the
+    series keeps its order. An administrator can restore it from the bin.
+  </p>
+  <form method="post">{% csrf_token %}
+    <div class="btn-row">
+      <button class="btn btn--danger" type="submit"><svg class="icon"><use href="#icon-trash"/></svg>Move to bin</button>
+      <a class="btn btn--quiet" href="{{ document.get_absolute_url }}"><svg class="icon"><use href="#icon-x"/></svg>Keep it</a>
+    </div>
+  </form>
+</div>
+{% endblock %}

@@ -1,0 +1,28 @@
+{% extends "base.html" %}
+{% block title %}My profile{% endblock %}
+{% block content %}
+<div class="page-head"><div><div class="eyebrow">Your account</div><h1>My profile</h1></div></div>
+
+<div class="card" style="max-width:640px">
+  <div style="display:flex; align-items:center; gap:1rem; margin-bottom:1.4rem;">
+    {% if user.avatar %}
+      <img class="avatar avatar-lg" src="{{ user.avatar.url }}" alt="{{ user }}">
+    {% else %}
+      <div class="avatar avatar-placeholder avatar-lg">{{ user.initials }}</div>
+    {% endif %}
+    <div>
+      <div style="font-weight:600; font-size:1.05rem;">{{ user.get_full_name|default:user.username }}</div>
+      <div class="helptext" style="margin-top:.15rem">{{ user.role_label }}{% if user.office %} · {{ user.office }}{% endif %}</div>
+    </div>
+  </div>
+
+  <form method="post" enctype="multipart/form-data">
+    {% csrf_token %}
+    {% for field in form %}{% include "form_field.html" %}{% endfor %}
+    <div class="btn-row">
+      <button class="btn" type="submit"><svg class="icon"><use href="#icon-check"/></svg>Save changes</button>
+      <a class="btn btn--quiet" href="{% url 'accounts:password_change' %}"><svg class="icon"><use href="#icon-lock"/></svg>Change password</a>
+    </div>
+  </form>
+</div>
+{% endblock %}

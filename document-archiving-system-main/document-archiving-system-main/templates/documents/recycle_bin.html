@@ -1,0 +1,21 @@
+{% extends "base.html" %}
+{% block title %}Bin{% endblock %}
+{% block content %}
+<div class="page-head"><div><div class="eyebrow">Administrator</div><h1>Bin</h1></div></div>
+<p class="helptext">Removed records keep their control numbers. Restore one to put it back in search.</p>
+<table class="registry">
+  <thead><tr><th>Control number</th><th>Subject</th><th>Removed</th><th></th></tr></thead>
+  <tbody>
+  {% for doc in documents %}
+    <tr>
+      <td class="ctrl">{{ doc.control_number }}</td>
+      <td class="subject">{{ doc.subject }}</td>
+      <td class="ctrl">{{ doc.deleted_at|date:"d M Y, H:i" }}</td>
+      <td><a href="{% url 'documents:document_restore' doc.pk %}"><svg class="icon icon-sm"><use href="#icon-arrow-right"/></svg> Restore</a></td>
+    </tr>
+  {% empty %}
+    <tr><td colspan="4" class="empty"><h3>The bin is empty</h3><p>Nothing has been removed from the registry.</p></td></tr>
+  {% endfor %}
+  </tbody>
+</table>
+{% endblock %}

@@ -1,0 +1,20 @@
+{% extends "base.html" %}
+{% block title %}{% if object %}Edit account{% else %}Add an account{% endif %}{% endblock %}
+{% block content %}
+<div class="page-head">
+  <div><div class="eyebrow">Administrator</div>
+  <h1>{% if object %}Edit {{ object.username }}{% else %}Add an account{% endif %}</h1></div>
+</div>
+<div class="card" style="max-width:640px">
+  <p class="helptext" style="margin-top:0">
+    Administrators file, edit and remove documents and manage accounts. Staff users search, open and download only.
+  </p>
+  <form method="post">{% csrf_token %}
+    {% for field in form %}{% include "form_field.html" %}{% endfor %}
+    <div class="btn-row">
+      <button class="btn" type="submit"><svg class="icon"><use href="#icon-check"/></svg>{% if object %}Save changes{% else %}Create account{% endif %}</button>
+      <a class="btn btn--quiet" href="{% url 'accounts:user_list' %}"><svg class="icon"><use href="#icon-x"/></svg>Cancel</a>
+    </div>
+  </form>
+</div>
+{% endblock %}

@@ -1,0 +1,67 @@
+{% extends "base.html" %}
+{% block title %}{{ heading }}{% endblock %}
+{% block content %}
+<div class="page-head"><div><div class="eyebrow">Administrator</div><h1>{{ heading }}</h1></div></div>
+
+<form method="post" enctype="multipart/form-data">
+  {% csrf_token %}
+  <div class="detail-grid">
+    <div>
+      <div class="card">
+        <div class="eyebrow">Control number</div>
+        <div class="grid grid-2" style="margin-top:.6rem">
+          <div>{% with field=form.doc_type %}{% include "form_field.html" %}{% endwith %}</div>
+          <div>{% with field=form.series_year %}{% include "form_field.html" %}{% endwith %}</div>
+        </div>
+        <div class="grid grid-2">
+          <div>{% with field=form.number %}{% include "form_field.html" %}{% endwith %}</div>
+          <div>{% with field=form.indorsement_level %}{% include "form_field.html" %}{% endwith %}</div>
+        </div>
+      </div>
+
+      <div class="card" style="margin-top:1rem">
+        <div class="eyebrow">The document</div>
+        <div style="margin-top:.6rem">
+          {% with field=form.subject %}{% include "form_field.html" %}{% endwith %}
+          {% with field=form.description %}{% include "form_field.html" %}{% endwith %}
+        </div>
+        <div class="grid grid-2">
+          <div>{% with field=form.date_issued %}{% include "form_field.html" %}{% endwith %}</div>
+          <div>{% with field=form.effectivity_date %}{% include "form_field.html" %}{% endwith %}</div>
+        </div>
+        <div class="grid grid-2">
+          <div>{% with field=form.originating_office %}{% include "form_field.html" %}{% endwith %}</div>
+          <div>{% with field=form.signatory %}{% include "form_field.html" %}{% endwith %}</div>
+        </div>
+        {% with field=form.addressee %}{% include "form_field.html" %}{% endwith %}
+        {% with field=form.keywords %}{% include "form_field.html" %}{% endwith %}
+        {% with field=form.related_to %}{% include "form_field.html" %}{% endwith %}
+      </div>
+    </div>
+
+    <div>
+      <div class="card">
+        <div class="eyebrow">Filing</div>
+        <div style="margin-top:.6rem">
+          {% with field=form.status %}{% include "form_field.html" %}{% endwith %}
+          {% with field=form.classification %}{% include "form_field.html" %}{% endwith %}
+          {% with field=form.physical_location %}{% include "form_field.html" %}{% endwith %}
+        </div>
+      </div>
+
+      <div class="card" style="margin-top:1rem">
+        <div class="eyebrow">Scanned copy</div>
+        <div style="margin-top:.6rem">
+          {% with field=form.file %}{% include "form_field.html" %}{% endwith %}
+          {% with field=form.page_count %}{% include "form_field.html" %}{% endwith %}
+        </div>
+      </div>
+
+      <div class="btn-row" style="margin-top:1rem">
+        <button class="btn" type="submit"><svg class="icon"><use href="#icon-check"/></svg>{% if object %}Save changes{% else %}File document{% endif %}</button>
+        <a class="btn btn--quiet" href="{% if object %}{{ object.get_absolute_url }}{% else %}{% url 'documents:document_list' %}{% endif %}"><svg class="icon"><use href="#icon-x"/></svg>Cancel</a>
+      </div>
+    </div>
+  </div>
+</form>
+{% endblock %}

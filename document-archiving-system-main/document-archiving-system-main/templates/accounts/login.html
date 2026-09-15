@@ -1,0 +1,58 @@
+{% load static %}<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Sign in — Municipality of Carigara</title>
+<link rel="icon" type="image/png" href="{% static 'images/carigara-seal.png' %}">
+<link rel="apple-touch-icon" href="{% static 'images/carigara-seal.png' %}">
+<script>
+  if (localStorage.getItem("theme") === "dark") {
+    document.documentElement.setAttribute("data-theme", "dark");
+  }
+</script>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Newsreader:wght@400;500;600&family=Public+Sans:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="{% static 'css/app.css' %}">
+</head>
+<body>
+{% include "_icons.html" %}
+<div class="signin">
+  <div class="split">
+    <button type="button" class="bell-btn theme-toggle" style="position:absolute; top:1rem; right:1rem; z-index:2;" aria-label="Switch to dark mode">
+      <svg class="icon icon-sun"><use href="#icon-sun"/></svg>
+      <svg class="icon icon-moon"><use href="#icon-moon"/></svg>
+    </button>
+    <div class="brand">
+      <img class="seal" src="{% static 'images/carigara-seal.png' %}" alt="Municipality of Carigara seal">
+      <div>
+        <h2>Municipality of Carigara</h2>
+        <p>Province of Leyte<br>Document Archiving System</p>
+      </div>
+    </div>
+
+    <div class="panel">
+      <div class="mark">Welcome Back<span>Sign in to continue to your account</span></div>
+
+      {% if form.non_field_errors %}
+        <ul class="errorlist">{% for error in form.non_field_errors %}<li>{{ error }}</li>{% endfor %}</ul>
+      {% endif %}
+
+      <form method="post" style="margin-top:1.4rem">
+        {% csrf_token %}
+        {% for field in form %}{% include "form_field.html" %}{% endfor %}
+        <button class="btn" type="submit"><svg class="icon"><use href="#icon-arrow-right"/></svg>Sign in</button>
+        <input type="hidden" name="next" value="{{ next }}">
+      </form>
+
+      <p class="helptext" style="margin-top:1.2rem">
+        No account? Ask a records administrator to create one for you.
+      </p>
+    </div>
+  </div>
+</div>
+<script src="{% static 'js/password-toggle.js' %}" defer></script>
+<script src="{% static 'js/theme-toggle.js' %}" defer></script>
+</body>
+</html>

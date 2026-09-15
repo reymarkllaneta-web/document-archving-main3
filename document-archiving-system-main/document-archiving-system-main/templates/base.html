@@ -1,0 +1,119 @@
+{% load static %}<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>{% block title %}Municipality of Carigara{% endblock %}</title>
+<link rel="icon" type="image/png" href="{% static 'images/carigara-seal.png' %}">
+<link rel="apple-touch-icon" href="{% static 'images/carigara-seal.png' %}">
+<script>
+  if (localStorage.getItem("theme") === "dark") {
+    document.documentElement.setAttribute("data-theme", "dark");
+  }
+</script>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Newsreader:wght@400;500;600&family=Public+Sans:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="{% static 'css/app.css' %}">
+</head>
+<body>
+{% include "_icons.html" %}
+<div class="shell">
+  <aside class="sidebar">
+    <div class="mark" style="display:flex; align-items:center; gap:.6rem;">
+      <img src="{% static 'images/carigara-seal.png' %}" alt="" style="width:34px; height:34px; flex:none; border-radius:50%;">
+      <div>Municipality of Carigara<span>Document Archiving System</span></div>
+    </div>
+
+    <nav>
+      <a href="{% url 'documents:dashboard' %}" {% if request.resolver_match.url_name == 'dashboard' %}class="active"{% endif %}>
+        <span class="navlabel"><svg class="icon"><use href="#icon-grid"/></svg>Overview</span>
+      </a>
+      <a href="{% url 'documents:document_list' %}" {% if request.resolver_match.url_name == 'document_list' %}class="active"{% endif %}>
+        <span class="navlabel"><svg class="icon"><use href="#icon-search"/></svg>Search records</span>
+      </a>
+
+      {% if user.is_archive_admin %}
+      <div class="group-label">Administrator</div>
+      <a href="{% url 'documents:document_create' %}" {% if request.resolver_match.url_name == 'document_create' %}class="active"{% endif %}>
+        <span class="navlabel"><svg class="icon"><use href="#icon-file-plus"/></svg>File a document</span>
+      </a>
+      <a href="{% url 'accounts:user_list' %}" {% if 'user' in request.resolver_match.url_name %}class="active"{% endif %}>
+        <span class="navlabel"><svg class="icon"><use href="#icon-users"/></svg>Accounts</span>
+      </a>
+      <a href="{% url 'documents:audit_trail' %}" {% if request.resolver_match.url_name == 'audit_trail' %}class="active"{% endif %}>
+        <span class="navlabel"><svg class="icon"><use href="#icon-list"/></svg>Audit trail</span>
+      </a>
+      <a href="{% url 'documents:recycle_bin' %}" {% if request.resolver_match.url_name == 'recycle_bin' %}class="active"{% endif %}>
+        <span class="navlabel"><svg class="icon"><use href="#icon-trash"/></svg>Bin</span>
+      </a>
+      {% endif %}
+    </nav>
+
+    {% if user.is_authenticated %}
+    <div class="whoami">
+      <div class="whoami-id">
+        {% if user.avatar %}
+          <img class="avatar avatar-sm" src="{{ user.avatar.url }}" alt="{{ user }}">
+        {% else %}
+          <div class="avatar avatar-placeholder avatar-sm">{{ user.initials }}</div>
+        {% endif %}
+        <div class="whoami-name">
+          <strong>{{ user.get_full_name|default:user.username }}</strong>
+          <div class="role">{{ user.role_label }}{% if user.office %} · {{ user.office }}{% endif %}</div>
+        </div>
+      </div>
+      <div class="whoami-actions">
+        <a class="whoami-link" href="{% url 'accounts:profile' %}"><svg class="icon icon-sm"><use href="#icon-user"/></svg> Profile</a>
+        <a class="whoami-link" href="{% url 'accounts:password_change' %}"><svg class="icon icon-sm"><use href="#icon-lock"/></svg> Password</a>
+        <form method="post" action="{% url 'accounts:logout' %}" class="whoami-signout-form">
+          {% csrf_token %}
+          <button type="submit" class="whoami-link whoami-signout"><svg class="icon icon-sm"><use href="#icon-log-out"/></svg> Sign out</button>
+        </form>
+      </div>
+    </div>
+    {% endif %}
+  </aside>
+
+  <main class="main">
+    {% if user.is_authenticated %}
+    <div class="topbar">
+      <button type="button" class="bell-btn theme-toggle" aria-label="Switch to dark mode">
+        <svg class="icon icon-sun"><use href="#icon-sun"/></svg>
+        <svg class="icon icon-moon"><use href="#icon-moon"/></svg>
+      </button>
+      <div class="notif-wrap">
+        <button type="button" class="bell-btn" id="notif-bell" aria-haspopup="true" aria-expanded="false" aria-label="Notifications">
+          <svg class="icon"><use href="#icon-bell"/></svg>
+          <span class="bell-badge" id="notif-badge" data-count="{{ unread_notification_count }}">{{ unread_notification_count }}</span>
+        </button>
+        <div class="notif-dropdown" id="notif-dropdown">
+          <div class="notif-head">
+            <strong>Notifications</strong>
+            <button type="button" id="notif-mark-all">Mark all read</button>
+          </div>
+          <div id="notif-items">
+            {% include "accounts/_notification_items.html" %}
+          </div>
+          <div class="notif-foot"><a href="{% url 'accounts:notification_list' %}">See all</a></div>
+        </div>
+      </div>
+    </div>
+    {% endif %}
+    {% if messages %}
+    <ul class="messages">
+      {% for message in messages %}<li class="{{ message.tags }}">{{ message }}</li>{% endfor %}
+    </ul>
+    {% endif %}
+    {% block content %}{% endblock %}
+  </main>
+</div>
+<form method="post" action="{% url 'accounts:notifications_mark_all_read' %}" id="notif-mark-all-form" style="display:none">{% csrf_token %}</form>
+<script>
+  window.NOTIF_POLL_URL = "{% url 'accounts:notifications_poll' %}";
+</script>
+<script src="{% static 'js/notifications.js' %}" defer></script>
+<script src="{% static 'js/password-toggle.js' %}" defer></script>
+<script src="{% static 'js/theme-toggle.js' %}" defer></script>
+</body>
+</html>

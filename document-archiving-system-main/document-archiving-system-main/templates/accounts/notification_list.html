@@ -1,0 +1,30 @@
+{% extends "base.html" %}
+{% load humanize %}
+{% block title %}Notifications{% endblock %}
+{% block content %}
+<div class="page-head"><div><div class="eyebrow">Your account</div><h1>Notifications</h1></div></div>
+
+<div class="card" style="max-width:640px; padding:0;">
+  {% for n in notification_list %}
+    <div class="notif-item" style="cursor:default;">
+      <span class="dot" style="background:transparent"></span>
+      <span class="body">
+        <a class="verb" style="text-decoration:none" href="{% if n.document %}{{ n.document.get_absolute_url }}{% else %}#{% endif %}">
+          {% if n.actor %}<strong>{{ n.actor.get_full_name|default:n.actor.username }}</strong> {% endif %}{{ n.verb }}
+        </a>
+        <span class="when">{{ n.created_at|naturaltime }}</span>
+      </span>
+    </div>
+  {% empty %}
+    <div class="empty"><h3>Nothing here yet</h3><p>Activity on documents you filed or filed by others will show up here.</p></div>
+  {% endfor %}
+</div>
+
+{% if is_paginated %}
+<div class="pager">
+  {% if page_obj.has_previous %}<a href="?page={{ page_obj.previous_page_number }}">Previous</a>{% endif %}
+  <span class="ctrl">Page {{ page_obj.number }} of {{ page_obj.paginator.num_pages }}</span>
+  {% if page_obj.has_next %}<a href="?page={{ page_obj.next_page_number }}">Next</a>{% endif %}
+</div>
+{% endif %}
+{% endblock %}

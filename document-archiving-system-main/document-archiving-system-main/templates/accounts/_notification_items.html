@@ -1,0 +1,12 @@
+{% load humanize %}
+{% for n in notification_items %}
+<a class="notif-item{% if n.is_read %} is-read{% endif %}" href="{% url 'accounts:notification_open' n.pk %}">
+  <span class="dot"></span>
+  <span class="body">
+    <span class="verb">{% if n.actor %}<strong>{{ n.actor.get_full_name|default:n.actor.username }}</strong> {% endif %}{{ n.verb }}</span>
+    <span class="when">{{ n.created_at|naturaltime }}</span>
+  </span>
+</a>
+{% empty %}
+<div class="notif-empty">No notifications yet.</div>
+{% endfor %}

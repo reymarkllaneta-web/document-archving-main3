@@ -1,0 +1,108 @@
+{% extends "base.html" %}
+{% block title %}{{ document.control_number }}{% endblock %}
+{% block content %}
+<div class="page-head">
+  <div>
+    <div class="stamp stamp--hero">{{ document.control_number }}</div>
+    <h1 style="margin-top:1rem">{{ document.subject }}</h1>
+  </div>
+  {% if user.is_archive_admin %}
+  <div class="btn-row">
+    <a class="btn btn--quiet" href="{% url 'documents:document_update' document.pk %}"><svg class="icon"><use href="#icon-edit"/></svg>Edit</a>
+    <a class="btn btn--danger" href="{% url 'documents:document_delete' document.pk %}"><svg class="icon"><use href="#icon-trash"/></svg>Remove</a>
+  </div>
+  {% endif %}
+</div>
+
+<div class="detail-grid">
+  <div>
+    <div class="card">
+      <div class="eyebrow">Record details</div>
+      <dl class="meta">
+        <dt>Type</dt><dd>{{ document.get_doc_type_display }}</dd>
+        <dt>Series / number</dt><dd class="ctrl">s. {{ document.series_year }} · No. {{ document.number }}</dd>
+        {% if document.indorsement_level %}<dt>Indorsement</dt><dd>{{ document.indorsement_level }}</dd>{% endif %}
+        <dt>Date issued</dt><dd>{{ document.date_issued|date:"d F Y" }}</dd>
+        {% if document.effectivity_date %}<dt>Effective</dt><dd>{{ document.effectivity_date|date:"d F Y" }}</dd>{% endif %}
+        <dt>Originating office</dt><dd>{{ document.originating_office|default:"—" }}</dd>
+        <dt>Signed by</dt><dd>{{ document.signatory|default:"—" }}</dd>
+        <dt>Addressed to</dt><dd>{{ document.addressee|default:"—" }}</dd>
+        <dt>Status</dt><dd>{{ document.get_status_display }}</dd>
+        <dt>Classification</dt><dd>{{ document.get_classification_display }}</dd>
+        <dt>Hard copy</dt><dd>{{ document.physical_location|default:"Not recorded" }}</dd>
+        {% if document.related_to %}
+        <dt>Refers to</dt><dd><a href="{{ document.related_to.get_absolute_url }}">{{ document.related_to.control_number }}</a></dd>
+        {% endif %}
+      </dl>
+    </div>
+
+    {% if document.description %}
+    <div class="card" style="margin-top:1rem">
+      <div class="eyebrow">Summary</div>
+      <p style="white-space:pre-wrap; margin-bottom:0">{{ document.description }}</p>
+    </div>
+    {% endif %}
+
+    {% if chain %}
+    <div class="card" style="margin-top:1rem">
+      <div class="eyebrow">Documents referring to this one</div>
+      <ul style="margin:.6rem 0 0; padding-left:1.1rem">
+        {% for child in chain %}
+        <li><a href="{{ child.get_absolute_url }}">{{ child.control_number }}</a> — {{ child.subject }}</li>
+        {% endfor %}
+      </ul>
+    </div>
+    {% endif %}
+  </div>
+
+  <div>
+    <div class="card">
+      <div class="eyebrow">Scanned copy</div>
+      {% if document.file %}
+        <p class="ctrl">{{ document.file_extension }}{% if document.page_count %} · {{ document.page_count }} page{{ document.page_count|pluralize }}{% endif %}</p>
+        <a class="btn" href="{% url 'documents:document_download' document.pk %}"><svg class="icon"><use href="#icon-download"/></svg>Download</a>
+      {% else %}
+        <p class="helptext">No scan on file.{% if user.is_archive_admin %} Edit this record to attach one.{% endif %}</p>
+      {% endif %}
+    </div>
+
+    <div class="card" style="margin-top:1rem">
+      <div class="eyebrow">Enclosures</div>
+      {% for a in document.attachments.all %}
+        <div style="padding:.35rem 0; border-bottom:1px solid var(--rule)">
+          <a href="{% url 'documents:attachment_download' a.pk %}"><svg class="icon icon-sm"><use href="#icon-paperclip"/></svg> {{ a.label }}</a>
+        </div>
+      {% empty %}
+        <p class="helptext">None filed.</p>
+      {% endfor %}
+
+      {% if user.is_archive_admin %}
+      <form method="post" action="{% url 'documents:attachment_add' document.pk %}" enctype="multipart/form-data" style="margin-top:.8rem">
+        {% csrf_token %}
+        {% for field in attachment_form %}{% include "form_field.html" %}{% endfor %}
+        <button class="btn btn--quiet" type="submit"><svg class="icon"><use href="#icon-paperclip"/></svg>Add enclosure</button>
+      </form>
+      {% endif %}
+    </div>
+
+    <div class="card" style="margin-top:1rem">
+      <div class="eyebrow">Provenance</div>
+      <p class="helptext" style="margin:.4rem 0 0">
+        Filed by {{ document.created_by }} on {{ document.created_at|date:"d M Y, H:i" }}.<br>
+        {% if document.updated_by %}Last edited by {{ document.updated_by }} on {{ document.updated_at|date:"d M Y, H:i" }}.{% endif %}
+      </p>
+    </div>
+
+    {% if history %}
+    <div class="card" style="margin-top:1rem">
+      <div class="eyebrow">Recent access</div>
+      {% for entry in history %}
+        <div class="helptext" style="padding:.25rem 0; border-bottom:1px solid var(--rule)">
+          {{ entry.timestamp|date:"d M H:i" }} · {{ entry.user|default:"—" }} · {{ entry.get_action_display }}
+        </div>
+      {% endfor %}
+    </div>
+    {% endif %}
+  </div>
+</div>
+{% endblock %}
